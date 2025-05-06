@@ -38,8 +38,7 @@ defmodule Gitlabor.Features.GitlabMrTest do
   defp vault_read_bot_password(token) do
     client =
       Tesla.client([
-        {Tesla.Middleware.BaseUrl,
-         System.get_env("VAULT_ADDR", "https://vault-a.dbccloud.dk:8200")},
+        {Tesla.Middleware.BaseUrl, System.get_env("VAULT_ADDR")},
         Tesla.Middleware.JSON
       ])
 
@@ -59,7 +58,7 @@ defmodule Gitlabor.Features.GitlabMrTest do
   setup %{session: session} do
     Logger.info("Running test setup", session: session)
     Logger.info("Reading GITLAB_TEST_USERNAME", session: session)
-    gitlab_user = System.get_env("GITLAB_TEST_USERNAME", "gitlabor")
+    gitlab_user = System.get_env("GITLAB_TEST_USERNAME")
 
     Logger.info("Reading vault token", session: session)
     {:ok, token} = read_vault_token()
@@ -68,7 +67,7 @@ defmodule Gitlabor.Features.GitlabMrTest do
     Logger.info("gitlab_pass set", session: session)
 
     Logger.info("Reading GITLAB_TEST_PROJECT_PATH", session: session)
-    project_path = System.get_env("GITLAB_TEST_PROJECT_PATH", "group/project")
+    project_path = System.get_env("GITLAB_TEST_PROJECT_PATH")
 
     Logger.info("Reading GITLAB_TEST_TARGET_BRANCH", session: session)
     target_branch = System.get_env("GITLAB_TEST_TARGET_BRANCH", "main")

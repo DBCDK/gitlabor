@@ -7,7 +7,7 @@ ExUnit.start()
 Application.put_env(
   :wallaby,
   :base_url,
-  System.get_env("GITLAB_BASE_URL", "https://gitlab.example.com")
+  System.get_env("GITLAB_BASE_URL")
 )
 
 Application.put_env(
@@ -22,7 +22,7 @@ Application.put_env(
   15_000
 )
 
-# DONT look at me like that! We're testing GitLab, not something that actual is
+# XXX: DONT look at me like that! We're testing GitLab, not something that actual is
 # expected to work... This is just how it is.  Radical Acceptance or something.
 Application.put_env(:wallaby, :js_errors, false)
 Application.put_env(:wallaby, :js_logger, false)
