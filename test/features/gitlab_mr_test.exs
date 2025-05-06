@@ -5,15 +5,13 @@ defmodule Gitlabor.Features.GitlabMrTest do
 
   import Wallaby.Query
 
-  import Logger
+  require Logger
 
   @vault_token_path "~/.vault-token"
 
-  @doc """
-  This reads the local vault token from the users home directory. This requires
-  that the token has actually been initialized, and doesn't provide much value
-  if the token is stale.
-  """
+  # This reads the local vault token from the users home directory. This requires
+  # that the token has actually been initialized, and doesn't provide much value
+  # if the token is stale.
   defp read_vault_token do
     # Expand the path (replace ~ with the actual home directory)
     path = Path.expand(@vault_token_path)
@@ -32,9 +30,7 @@ defmodule Gitlabor.Features.GitlabMrTest do
     end
   end
 
-  @doc """
-  This queries the Vault V1 API for the GitLab bot's password.
-  """
+  # This queries the Vault V1 API for the GitLab bot's password.
   defp vault_read_bot_password(token) do
     client =
       Tesla.client([
@@ -86,7 +82,6 @@ defmodule Gitlabor.Features.GitlabMrTest do
     end
 
     if is_nil(project_path) or String.length(project_path) == 0 or
-         is_nil(source_branch) or String.length(source_branch) == 0 or
          is_nil(target_branch) or String.length(target_branch) == 0 do
       flunk("""
       GitLab test target details not configured correctly in config or env vars.
@@ -113,13 +108,11 @@ defmodule Gitlabor.Features.GitlabMrTest do
     session
   end
 
-  @doc """
-  Since `tap` can't be expected to not modify state (for some reason...), we'll
-  just roll our own!
-
-  This currently doesn't support overloading the logger with metadata... which
-  is tolerable.
-  """
+  # Since `tap` can't be expected to not modify state (for some reason...), we'll
+  # just roll our own!
+  #
+  # This currently doesn't support overloading the logger with metadata... which
+  # is tolerable.
   defp logtee(session, logger, message) do
     logger.(message)
     session
@@ -131,7 +124,7 @@ defmodule Gitlabor.Features.GitlabMrTest do
     gitlab_pass: pass,
     project_path: proj_path,
     source_branch: src_branch,
-    target_branch: tgt_branch
+    target_branch: _tgt_branch
   } do
     session
     # We start with a clean slate
