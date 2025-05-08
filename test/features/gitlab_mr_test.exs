@@ -71,7 +71,6 @@ defmodule Gitlabor.Features.GitlabMrTest do
     source_branch = "gitlabor-test-#{UUID.uuid4()}"
     Logger.info("Generated source_branch", session: session, branch: source_branch)
 
-    # Perform nil/empty checks
     if is_nil(gitlab_user) or String.length(gitlab_user) == 0 or
          is_nil(gitlab_pass) or String.length(gitlab_pass) == 0 do
       flunk("""
@@ -91,7 +90,6 @@ defmodule Gitlabor.Features.GitlabMrTest do
       """)
     end
 
-    # Return the session and fetched config values via the context map
     {:ok,
      session: session,
      gitlab_user: gitlab_user,
@@ -104,7 +102,6 @@ defmodule Gitlabor.Features.GitlabMrTest do
   defp sleep(session, duration_ms) do
     Logger.info("Sleeping for #{duration_ms}ms", session: session, duration_ms: duration_ms)
     Process.sleep(duration_ms)
-    # Return the session
     session
   end
 
@@ -127,7 +124,6 @@ defmodule Gitlabor.Features.GitlabMrTest do
     target_branch: _tgt_branch
   } do
     session
-    # We start with a clean slate
     |> logtee(&Logger.info(&1), "Start \"GitLab Merge Request creation check\" test")
     |> take_screenshot([{:name, "1_not_started.png"}])
 

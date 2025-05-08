@@ -4,8 +4,9 @@
 - [ ] Various fixes
   - [ ] All env vars should be vault.
   - [ ] Ensure we test that annoying last PR page 
-  - [ ] Package as something
+  - [x] Package as something
   - [ ] Screenshot Helper
+  - [ ] Deterministic Testing (specially branch dropdown)
 - [ ] Create/Push repo (GitHub, because irony)
 - [ ] Demo at sprintmeet
 - [ ] Push next rock up hill
