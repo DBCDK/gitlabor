@@ -9,6 +9,50 @@ defmodule Gitlabor.Features.GitlabMrTest do
 
   @vault_token_path "~/.vault-token"
 
+  # Erlang Term Storage Table
+  @table_name :screenshot_state_table
+  @counter_key :global_screenshot_count
+
+  defp ets_setup do
+    if :ets.whereis(@table_name) == :undefined do
+      :ets.new(@table_name, [
+        :set,
+        :public,
+        :named_table,
+        write_concurrency: true,
+        read_concurrency: true
+      ])
+
+      :ets.insert(@table_name, {@counter_key, 0})
+    end
+
+    :ok
+  end
+
+  defp screenshot_increment do
+    :ets.update_counter(@table_name, @counter_key, {2, 1, 0})
+    :ets.update_counter(@table_name, @counter_key, {2, 1})
+  rescue
+    ArgumentError ->
+      ets_setup()
+      :ets.update_counter(@table_name, @counter_key, {2, 1})
+  end
+
+  defp screenshot_counter_value do
+    case :ets.lookup(@table_name, @counter_key) do
+      [{@counter_key, val}] ->
+        val
+
+      [] ->
+        ets_setup()
+        0
+    end
+  end
+
+  defp screenshot_ets_cleanup do
+    :ets.delete(@table_name)
+  end
+
   # This reads the local vault token from the users home directory. This requires
   # that the token has actually been initialized, and doesn't provide much value
   # if the token is stale.
@@ -112,6 +156,9 @@ defmodule Gitlabor.Features.GitlabMrTest do
   # is tolerable.
   defp logtee(session, logger, message) do
     logger.(message)
+    message = "#{screenshot_counter_value()}_#{message |> String.replace(" ", "_")}"
+    session |> take_screenshot([{:name, message}])
+    screenshot_increment()
     session
   end
 
@@ -123,27 +170,29 @@ defmodule Gitlabor.Features.GitlabMrTest do
     source_branch: src_branch,
     target_branch: _tgt_branch
   } do
+    ets_setup()
+
     session
     |> logtee(&Logger.info(&1), "Start \"GitLab Merge Request creation check\" test")
-    |> take_screenshot([{:name, "1_not_started.png"}])
+
 
     # --- Login ---
     |> logtee(&Logger.info(&1), "Visit /users/sign_in")
     |> visit("/users/sign_in")
-    |> take_screenshot([{:name, "2_sign_in_page.png"}])
+
     |> logtee(&Logger.info(&1), "Check page has a GitLab title")
     |> assert_has(css("h1", text: "GitLab"))
     |> logtee(&Logger.info(&1), "Open Standard Login (i.e. not LDAP)")
     |> click(css("#gl_tab_nav__tab_2"))
-    |> take_screenshot([{:name, "3_open_ldap_login.png"}])
+
     |> logtee(&Logger.info(&1), "Write username")
     |> fill_in(css("#user_login"), with: user)
-    |> take_screenshot([{:name, "4_fill_in_username.png"}])
+
     |> logtee(&Logger.info(&1), "Write password")
     |> fill_in(css("#user_password"), with: pass)
     |> logtee(&Logger.info(&1), "Click Login button")
     |> click(css("button.gl-button:nth-child(6)"))
-    |> take_screenshot([{:name, "5_fill_in_password.png"}])
+
     |> logtee(&Logger.info(&1), "Assert we're logged in (can see our user avatar)")
     |> assert_has(css("img.gl-avatar"))
 
@@ -158,10 +207,10 @@ defmodule Gitlabor.Features.GitlabMrTest do
     # --- Create Test MR (Select Branch)
     |> logtee(&Logger.info(&1), "Visit /#{proj_path}/-/merge_requests/new")
     |> visit("/#{proj_path}/-/merge_requests/new")
-    |> take_screenshot([{:name, "6_new_merge_request.png"}])
+
     |> logtee(&Logger.info(&1), "Select the branch dropdown")
     |> click(css("#dropdown-toggle-btn-44"))
-    |> take_screenshot([{:name, "7_show_dropdown.png"}])
+
     |> logtee(&Logger.info(&1), "Can we search our branch in the dropdown?")
     |> find(
       css(
@@ -169,27 +218,27 @@ defmodule Gitlabor.Features.GitlabMrTest do
       ),
       &Element.fill_in(&1, with: src_branch)
     )
-    |> take_screenshot([{:name, "8_write_branch_name_in_dropdown.png"}])
+
     |> sleep(2000)
     |> logtee(&Logger.info(&1), "We found it, send enter to select it")
     |> send_keys([:enter])
-    |> take_screenshot([{:name, "9_select_branch.png"}])
+
 
     # --- Create MR (Confirm Selection)
     |> logtee(&Logger.info(&1), "Confirm we're creating a new PR")
     |> click(css("button.btn-confirm"))
     |> sleep(2000)
-    |> take_screenshot([{:name, "10_create_mr.png"}])
+
     |> logtee(&Logger.info(&1), "We're now on a page with a h1 that says \"New merge request\"")
     |> assert_has(css("h1", text: "New merge request"))
-    |> take_screenshot([{:name, "11_has_mr_header.png"}])
+
     |> logtee(&Logger.info(&1), "Click new MR button")
     |> click(css("button.btn-confirm:nth-child(1)"))
-    |> take_screenshot([{:name, "12_merge.png"}])
+
     |> sleep(2000)
 
     # --- We've made a MR ---
     |> logtee(&Logger.info(&1), "We've made an MR 🎉")
-    |> take_screenshot([{:name, "13_sleep_after_merge.png"}])
+
   end
 end
