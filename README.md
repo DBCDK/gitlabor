@@ -1,16 +1,5 @@
 # Gitlabor
 
-## TODO
-- [ ] Various fixes
-  - [ ] All env vars should be vault.
-  - [ ] Ensure we test that annoying last PR page 
-  - [x] Package as something
-  - [ ] Screenshot Helper
-  - [ ] Deterministic Testing (specially branch dropdown)
-- [ ] Create/Push repo (GitHub, because irony)
-- [ ] Demo at sprintmeet
-- [ ] Push next rock up hill
-
 ## Installation
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed

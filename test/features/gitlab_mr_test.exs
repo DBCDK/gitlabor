@@ -49,7 +49,7 @@ defmodule Gitlabor.Features.GitlabMrTest do
     end
   end
 
-  defp screenshot_ets_cleanup do
+  defp _screenshot_ets_cleanup do
     :ets.delete(@table_name)
   end
 
@@ -175,24 +175,19 @@ defmodule Gitlabor.Features.GitlabMrTest do
     session
     |> logtee(&Logger.info(&1), "Start \"GitLab Merge Request creation check\" test")
 
-
     # --- Login ---
     |> logtee(&Logger.info(&1), "Visit /users/sign_in")
     |> visit("/users/sign_in")
-
     |> logtee(&Logger.info(&1), "Check page has a GitLab title")
     |> assert_has(css("h1", text: "GitLab"))
     |> logtee(&Logger.info(&1), "Open Standard Login (i.e. not LDAP)")
     |> click(css("#gl_tab_nav__tab_2"))
-
     |> logtee(&Logger.info(&1), "Write username")
     |> fill_in(css("#user_login"), with: user)
-
     |> logtee(&Logger.info(&1), "Write password")
     |> fill_in(css("#user_password"), with: pass)
     |> logtee(&Logger.info(&1), "Click Login button")
     |> click(css("button.gl-button:nth-child(6)"))
-
     |> logtee(&Logger.info(&1), "Assert we're logged in (can see our user avatar)")
     |> assert_has(css("img.gl-avatar"))
 
@@ -207,10 +202,8 @@ defmodule Gitlabor.Features.GitlabMrTest do
     # --- Create Test MR (Select Branch)
     |> logtee(&Logger.info(&1), "Visit /#{proj_path}/-/merge_requests/new")
     |> visit("/#{proj_path}/-/merge_requests/new")
-
     |> logtee(&Logger.info(&1), "Select the branch dropdown")
     |> click(css("#dropdown-toggle-btn-44"))
-
     |> logtee(&Logger.info(&1), "Can we search our branch in the dropdown?")
     |> find(
       css(
@@ -218,27 +211,22 @@ defmodule Gitlabor.Features.GitlabMrTest do
       ),
       &Element.fill_in(&1, with: src_branch)
     )
-
     |> sleep(2000)
     |> logtee(&Logger.info(&1), "We found it, send enter to select it")
     |> send_keys([:enter])
-
 
     # --- Create MR (Confirm Selection)
     |> logtee(&Logger.info(&1), "Confirm we're creating a new PR")
     |> click(css("button.btn-confirm"))
     |> sleep(2000)
-
     |> logtee(&Logger.info(&1), "We're now on a page with a h1 that says \"New merge request\"")
     |> assert_has(css("h1", text: "New merge request"))
-
     |> logtee(&Logger.info(&1), "Click new MR button")
     |> click(css("button.btn-confirm:nth-child(1)"))
-
     |> sleep(2000)
+    |> assert_has(css("h2", text: "Activity"))
 
     # --- We've made a MR ---
     |> logtee(&Logger.info(&1), "We've made an MR 🎉")
-
   end
 end
